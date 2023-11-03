@@ -1,37 +1,33 @@
 const bcrypt = require('bcrypt');
-const Usuario = require('../models/usuario.model');
+const Usuario = require('../models/user.model');
 const jwt = require('jsonwebtoken');
+const saltosBycript = parseInt(process.env.SALTOS_BCRYPT);
 const secretJWT = process.env.SECRET_JWT;
 
 const login = async (req, res) => {
     try {
-        const {email, password} = req.body;
-        const usuarioEncontrado = await Usuario.findOne({email});
+        const {email, password} = req.params;
+        console.log(req.params);
+        const userFound = await Usuario.findOne({email});
 
-        if (!usuarioEncontrado) {
+        if (!userFound) {
             return res.status(200).json({
                 message: "email o contraseña incorrecta"
             });
         }
 
-        const passwordCorrecta = bcrypt.compareSync(password, usuarioEncontrado.password)
+        const correctPassword = bcrypt.compareSync(password, userFound.password)
 
-        if (!passwordCorrecta) {
+        if (!correctPassword) {
             return res.status(200).json({
                 message: "email o contraseña incorrecta"
             });
         }
 
-        const payload = {
-            usuario: {
-                _id: usuarioEncontrado._id
-            }
-        }
-
-        const token = jwt.sign(payload, secretJWT, {expiresIn: '1h'});
+        const token = jwt.sign({ _id: userFound._id}, secretJWT, {expiresIn: '12h'});
 
         return res.status(200).json({
-            message: "acceso concedido",
+            message: "inicio de sesion correcto",
             token
         });
 
@@ -43,6 +39,42 @@ const login = async (req, res) => {
     }
 }
 
+export const signUp = async (req, res) => {
+    try {
+        const {email, password, nombre, apellido_pat, apellido_mat} = req.body;
+        const encryptedPassword = bcrypt.hashSync(password, saltosBycript);
+
+        const userFound = await Usuario.findOne({email});
+
+        if (userFound) {
+            return res.status(200).json({
+                message: "Error, el usuario ya existe en la base de datos"
+            });
+        }
+
+        const user = new Usuario({
+            email,
+            password: encryptedPassword,
+            nombre,
+            apellido_pat,
+            apellido_mat
+        });
+
+        const createdUser = await user.save();
+
+        return res.status(201).json({
+            message: "usuario creado exitosamente",
+            createdUser
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "error al crear el usuario",
+            error: error.message
+        });
+    }
+}
+
 module.exports = {
-    login
+    login,
+    signUp
 }

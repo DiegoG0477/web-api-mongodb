@@ -1,22 +1,18 @@
-const bcrypt = require('bcrypt');
-const saltosBycript = parseInt(process.env.SALTOS_BCRYPT);
-const usuarioModel = require('../models/usuario.model');
-const UsuarioModel = require('../models/usuario.model');
-const uploadsHelper = require('../helpers/uploads.helper');
+const UserModel = require('../models/user.model');
 
 const index = async (req, res) => {
     try {
         const { page, limit } = req.query;
         const skip = (page - 1) * limit;
-        const usuarios = await UsuarioModel.find({ deleted: false }).skip(skip).limit(limit);
+        const users = await UserModel.find({ deleted: false }).skip(skip).limit(limit);
 
         let response = {
             message: "se obtuvieron correctamente los usuarios",
-            data: usuarios
+            data: users
         }
 
         if (page && limit) {
-            const totalUsuarios = await UsuarioModel.countDocuments({ deleted: false });
+            const totalUsuarios = await UserModel.countDocuments({ deleted: false });
             const totalPages = Math.ceil(totalUsuarios / limit);
 
             response = {
@@ -39,7 +35,7 @@ const index = async (req, res) => {
 const getById = async (req, res) => {
     try {
         const usuarioId = req.params.id;
-        const usuario = await usuarioModel.findById(usuarioId);
+        const usuario = await UserModel.findById(usuarioId);
 
         if (!usuario) {
             return res.status(404).json({
@@ -59,28 +55,6 @@ const getById = async (req, res) => {
     }
 }
 
-const create = async (req, res) => {
-    try {
-        let usuario = new UsuarioModel({
-            nombre: req.body.nombre,
-            email: req.body.email,
-            password: bcrypt.hashSync(req.body.password, saltosBycript),
-            createdBy: req.usuario._id
-        });
-
-        await usuario.save();
-
-        return res.status(201).json({
-            mensaje: "usuario creado exitosamente!"
-        });
-    } catch (error) {
-        return res.status(500).json({
-            mensaje: "no se pudo crear el usuario",
-            error: error.message
-        });
-    }
-}
-
 // /usuario/:id
 const updateParcial = async (req, res) => {
     try {
@@ -90,7 +64,7 @@ const updateParcial = async (req, res) => {
             updated_at: new Date()
         };
 
-        const usuarioActualizado = await usuarioModel.findByIdAndUpdate(usuarioId, datosActualizar);
+        const usuarioActualizado = await UserModel.findByIdAndUpdate(usuarioId, datosActualizar);
 
         if (!usuarioActualizado) {
             return res.status(404).json({
@@ -120,7 +94,7 @@ const updateCompleto = async (req, res) => {
             updated_at: new Date()
         }
 
-        const usuarioActualizado = await usuarioModel.findByIdAndUpdate(usuarioId, datosActualizar);
+        const usuarioActualizado = await UserModel.findByIdAndUpdate(usuarioId, datosActualizar);
 
         if (!usuarioActualizado) {
             return res.status(404).json({
@@ -139,41 +113,11 @@ const updateCompleto = async (req, res) => {
     }
 }
 
-const updateImagenPerfil = async (req, res) => {
-    try {
-        const idUsuario = req.params.id;
-        const usuarioEncontrado = await UsuarioModel.findById(idUsuario);
-
-        if (!usuarioEncontrado) {
-            return res.status(404).json({
-                message: "el usuario no existe"
-            })
-        }
-
-        const { b64, extension } = req.body;
-        const nombreImagen = idUsuario + Date.now() + "." + extension;
-
-        uploadsHelper.guardarArchivoB64(b64, nombreImagen);
-
-        usuarioEncontrado.imagenPerfil = nombreImagen;
-        await usuarioEncontrado.save()
-
-        return res.status(200).json({
-            message: "imagen de perfil actualizada exitosamente"
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: "ocurrió un error al cargar la imagen",
-            error: error.message
-        })
-    }
-}
-
 // usuarios/:id
 const deleteLogico = async (req, res) => {
     try {
         const usuarioId = req.params.id;
-        const usuarioEliminado = await usuarioModel.findByIdAndUpdate(usuarioId, { deleted: true, deleted_at: new Date() });
+        const usuarioEliminado = await UserModel.findByIdAndUpdate(usuarioId, { deleted: true, deleted_at: new Date() });
 
         if (!usuarioEliminado) {
             return res.status(404).json({
@@ -191,36 +135,12 @@ const deleteLogico = async (req, res) => {
         });
     }
 }
-
-// usuarios/:id
-const deleteFisico = async (req, res) => {
-    try {
-        const usuarioId = req.params.id;
-        const usuarioEliminado = await usuarioModel.findByIdAndDelete(usuarioId);
-
-        if (!usuarioEliminado) {
-            return res.status(404).json({
-                message: "usuario no encontrado"
-            });
-        }
-
-        return res.status(200).json({
-            message: "usuario eliminado exitosamente"
-        });
-    } catch (error) {
-        return res.status(500).json({
-            mensaje: "no se pudo eliminar el usuario",
-            error: error.message
-        });
-    }
-};
 
 module.exports = {
     index,
     getById,
     create,
-    delete: deleteFisico,
+    delete: deleteLogico,
     updateParcial,
     updateCompleto,
-    updateImagenPerfil
 }

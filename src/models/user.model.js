@@ -13,26 +13,22 @@ const usuarioSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    imagenPerfil: {
+    nombre: {
         type: String,
-        required: false,
+        required: true,
     },
-    createdAt: {
-        type: Date,
-        default: new Date()
+    apellio_pat: {
+        type: String,
+        required: true,
     },
-    updatedAt: {
-        type: Date,
-        default: null
+    apellido_mat: {
+        type: String,
+        required: true,
     },
     deleted: {
         type: Boolean,
         required: false,
         default: false,
-    },
-    deletedAt: {
-        type: Date,
-        default: null,
     },
 });
 
