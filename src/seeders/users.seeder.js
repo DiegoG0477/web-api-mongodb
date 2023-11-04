@@ -1,7 +1,7 @@
 require('dotenv').config();
 require('../configs/db.config');
 const bcrypt = require('bcrypt');
-const saltosBcrypt = parseInt(process.env.SALTOS_BCRYPT);
+const saltosBcrypt = parseInt(process.env.BCRYPT_SALT);
 
 const User = require('../models/user.model');
 const mongoose = require('mongoose');
