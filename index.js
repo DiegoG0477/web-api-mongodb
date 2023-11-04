@@ -5,11 +5,11 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT;
 
-const usuariosRouter = require('./src/routes/usuarios.route');
+const usersRouter = require('./src/routes/users.route');
 const authRouter = require('./src/routes/auth.route');
 
 app.use(express.json());
-app.use('/api/v1/users', usuariosRouter);
+app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/auth', authRouter);
 
 app.listen(PORT, () => {

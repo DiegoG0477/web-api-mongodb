@@ -1,14 +1,15 @@
 {
-  "name": "web-api-mongodb-b",
-  "version": "1.0.0",
+  "name": "web-api-mongodb-223213",
+  "version": "1.3.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "run seed":"node ./src/seeders/users.seeder.js",
     "start": "nodemon index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "diegoG",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",

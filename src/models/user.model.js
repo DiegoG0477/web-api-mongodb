@@ -17,7 +17,7 @@ const usuarioSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    apellio_pat: {
+    apellido_pat: {
         type: String,
         required: true,
     },
@@ -25,10 +25,30 @@ const usuarioSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    deleted: {
+    created_at: {
+        type: Date,
+        default: Date.now(),
+    },
+    created_by: {
+        type: String,
+    },
+    updated_at: {
+        type: Date,
+    },
+    updated_by: {
+        type: String,
+    },    deleted: {
         type: Boolean,
         required: false,
         default: false,
+    },
+    deleted_at: {
+        type: Date,
+        required: false,
+    },
+    deleted_by: {
+        type: String,
+        required: false,
     },
 });
 

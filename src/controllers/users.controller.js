@@ -2,6 +2,7 @@ const UserModel = require('../models/user.model');
 
 const index = async (req, res) => {
     try {
+        console.log(req._id);
         const { page, limit } = req.query;
         const skip = (page - 1) * limit;
         const users = await UserModel.find({ deleted: false }).skip(skip).limit(limit);
@@ -12,12 +13,12 @@ const index = async (req, res) => {
         }
 
         if (page && limit) {
-            const totalUsuarios = await UserModel.countDocuments({ deleted: false });
-            const totalPages = Math.ceil(totalUsuarios / limit);
+            const totalUsers = await UserModel.countDocuments({ deleted: false });
+            const totalPages = Math.ceil(totalUsers / limit);
 
             response = {
                 ...response,
-                total: totalUsuarios,
+                total: totalUsers,
                 totalPages,
             }
         }
@@ -31,13 +32,13 @@ const index = async (req, res) => {
     }
 }
 
-// /usuarios/:id
+
 const getById = async (req, res) => {
     try {
-        const usuarioId = req.params.id;
-        const usuario = await UserModel.findById(usuarioId);
+        const userId = req.params.id;
+        const user = await UserModel.findById(userId);
 
-        if (!usuario) {
+        if (!user) {
             return res.status(404).json({
                 message: "usuario no encontrado"
             });
@@ -45,7 +46,7 @@ const getById = async (req, res) => {
 
         return res.status(200).json({
             message: "se obtuvo el usuario correctamente",
-            usuario,
+            data:user,
         });
     } catch (error) {
         return res.status(500).json({
@@ -56,17 +57,17 @@ const getById = async (req, res) => {
 }
 
 // /usuario/:id
-const updateParcial = async (req, res) => {
+const update = async (req, res) => {
     try {
-        const usuarioId = req.params.id;
-        const datosActualizar = {
+        const userId = req.params.id;
+        const updatedData = {
             ...req.body,
             updated_at: new Date()
         };
 
-        const usuarioActualizado = await UserModel.findByIdAndUpdate(usuarioId, datosActualizar);
+        const updatedUser = await UserModel.findByIdAndUpdate(userId, updatedData);
 
-        if (!usuarioActualizado) {
+        if (!updatedUser) {
             return res.status(404).json({
                 message: "usuario no encontrado"
             });
@@ -84,19 +85,19 @@ const updateParcial = async (req, res) => {
     }
 }
 
-const updateCompleto = async (req, res) => {
+const completeUpdate = async (req, res) => {
     try {
-        const usuarioId = req.params.id;
-        const datosActualizar = {
+        const userId = req.params.id;
+        const updatedData = {
             nombre: req.body.nombre || null,
             email: req.body.email || null,
             password: req.body.password || null,
             updated_at: new Date()
         }
 
-        const usuarioActualizado = await UserModel.findByIdAndUpdate(usuarioId, datosActualizar);
+        const updatedUser = await UserModel.findByIdAndUpdate(userId, updatedData);
 
-        if (!usuarioActualizado) {
+        if (!updatedUser) {
             return res.status(404).json({
                 message: "usuario no encontrado"
             });
@@ -114,12 +115,12 @@ const updateCompleto = async (req, res) => {
 }
 
 // usuarios/:id
-const deleteLogico = async (req, res) => {
+const logicDelete = async (req, res) => {
     try {
-        const usuarioId = req.params.id;
-        const usuarioEliminado = await UserModel.findByIdAndUpdate(usuarioId, { deleted: true, deleted_at: new Date() });
+        const userId = req.params.id;
+        const deletedUser = await UserModel.findByIdAndUpdate(userId, { deleted: true, deleted_at: new Date() });
 
-        if (!usuarioEliminado) {
+        if (!deletedUser) {
             return res.status(404).json({
                 message: "usuario no encontrado"
             });
@@ -136,11 +137,32 @@ const deleteLogico = async (req, res) => {
     }
 }
 
+const physicDelete = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const deletedUser = await usuarioModel.findByIdAndDelete(userId);
+
+        if (!deletedUser) {
+            return res.status(404).json({
+                message: "usuario no encontrado"
+            });
+        }
+
+        return res.status(200).json({
+            message: "usuario eliminado exitosamente"
+        });
+    } catch (error) {
+        return res.status(500).json({
+            mensaje: "no se pudo eliminar el usuario",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     index,
     getById,
-    create,
-    delete: deleteLogico,
-    updateParcial,
-    updateCompleto,
+    delete: logicDelete,
+    update,
+    completeUpdate,
 }

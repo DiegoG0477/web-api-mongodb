@@ -3,7 +3,7 @@ require('../configs/db.config');
 const bcrypt = require('bcrypt');
 const saltosBcrypt = parseInt(process.env.SALTOS_BCRYPT);
 
-const Usuario = require('../models/usuario.model');
+const User = require('../models/user.model');
 const mongoose = require('mongoose');
 
 const usuarios = [
@@ -19,9 +19,9 @@ const usuarios = [
     { nombre: "nombre10", apellido_pat:"apellido_pat10", apellido_mat:"apellido_mat10", email: "email10@gmail.com", password: bcrypt.hashSync('1234', saltosBcrypt)},
 ];
 
-Usuario.deleteMany({})
+User.deleteMany({})
     .then(() => {
-        return Usuario.insertMany(usuarios);
+        return User.insertMany(usuarios);
     })
     .then(() => {
         console.log("usuarios creados");

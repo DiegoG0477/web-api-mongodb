@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const Usuario = require('../models/user.model');
+const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 const saltosBycript = parseInt(process.env.SALTOS_BCRYPT);
 const secretJWT = process.env.SECRET_JWT;
@@ -8,7 +8,7 @@ const login = async (req, res) => {
     try {
         const {email, password} = req.params;
         console.log(req.params);
-        const userFound = await Usuario.findOne({email});
+        const userFound = await User.findOne({email});
 
         if (!userFound) {
             return res.status(200).json({
@@ -39,12 +39,13 @@ const login = async (req, res) => {
     }
 }
 
-export const signUp = async (req, res) => {
+const signUp = async (req, res) => {
     try {
         const {email, password, nombre, apellido_pat, apellido_mat} = req.body;
+        console.log(req.body);
         const encryptedPassword = bcrypt.hashSync(password, saltosBycript);
 
-        const userFound = await Usuario.findOne({email});
+        const userFound = await User.findOne({email});
 
         if (userFound) {
             return res.status(200).json({
@@ -52,7 +53,7 @@ export const signUp = async (req, res) => {
             });
         }
 
-        const user = new Usuario({
+        const user = new User({
             email,
             password: encryptedPassword,
             nombre,
