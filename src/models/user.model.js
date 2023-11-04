@@ -13,10 +13,6 @@ const usuarioSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    nombre: {
-        type: String,
-        required: true,
-    },
     apellido_pat: {
         type: String,
         required: true,
